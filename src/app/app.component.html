@@ -7,9 +7,11 @@
 			<app-search-form></app-search-form>
 			<br />
 
-			<div *ngIf="isLoading">Loading...</div>
+			<div *ngIf="isLoading" data-testid="loading-message">
+				Loading...
+			</div>
 
-			<div *ngIf="isNotFound(searchResult, isLoading)">
+			<div *ngIf="isNotFound(searchResult, isLoading)" data-testid="not-found-message">
 				Not found.
 			</div>
 

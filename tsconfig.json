@@ -1,18 +1,17 @@
 {
-	"compileOnSave": false,
+	"compileOnSave": true,
 	"compilerOptions": {
 		"outDir": "./dist/out-tsc",
 		"sourceMap": false,
 		"declaration": false,
 		"module": "es2015",
 		"moduleResolution": "node",
+		"resolveJsonModule": true,
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"target": "ES2022",
 		"typeRoots": ["node_modules/@types"],
-		"types": ["cypress", "node"],
 		"lib": ["es2018", "dom"],
-
 		"noUnusedLocals": true,
 		"noUnusedParameters": true
 	}

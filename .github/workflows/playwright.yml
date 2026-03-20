@@ -1,27 +1,117 @@
 name: Playwright Tests
+
 on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+  workflow_dispatch:
+
 jobs:
-  test:
-    timeout-minutes: 60
+  build-image:
+    timeout-minutes: 25
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-    - name: Run Playwright tests
-      run: npx playwright test
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Playwright Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: e2e/Dockerfile
+          tags: fedex-playwright-e2e:${{ github.sha }}
+          outputs: type=docker,dest=/tmp/fedex-playwright-e2e.tar
+          cache-from: type=gha,scope=playwright-e2e
+          cache-to: type=gha,mode=max,scope=playwright-e2e
+
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-docker-image
+          path: /tmp/fedex-playwright-e2e.tar
+          retention-days: 1
+
+  playwright-tests:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    needs: [build-image]
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+
+    steps:
+      - name: Download Docker image artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: playwright-docker-image
+          path: /tmp
+
+      - name: Load Playwright Docker image
+        run: docker load --input /tmp/fedex-playwright-e2e.tar
+
+      - name: Run Playwright shard in Docker
+        id: run-shard
+        continue-on-error: true
+        run: |
+          rm -rf blob-report test-results
+          mkdir -p blob-report test-results
+
+          docker run --rm --ipc=host \
+            -e CI=true \
+            -v "${{ github.workspace }}/blob-report:/app/blob-report" \
+            -v "${{ github.workspace }}/test-results:/app/test-results" \
+            fedex-playwright-e2e:${{ github.sha }} \
+            npx playwright test --shard=${{ matrix.shard }}/4 --reporter=blob
+
+      - name: Upload blob report
+        if: ${{ always() && !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: blob-report-${{ matrix.shard }}
+          path: blob-report
+          retention-days: 1
+
+      - name: Upload shard test results
+        if: ${{ always() && !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.shard }}
+          path: test-results
+          retention-days: 14
+
+      - name: Mark shard as failed if tests failed
+        if: ${{ steps.run-shard.outcome == 'failure' }}
+        run: exit 1
+
+  merge-reports:
+    if: ${{ always() && !cancelled() }}
+    needs: [build-image, playwright-tests]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download blob reports
+        uses: actions/download-artifact@v5
+        with:
+          path: all-blob-reports
+          pattern: blob-report-*
+          merge-multiple: true
+
+      - name: Merge Playwright reports
+        run: npx playwright merge-reports --reporter html ./all-blob-reports
+
+      - name: Upload merged HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.run_attempt }}
+          path: playwright-report
+          retention-days: 14

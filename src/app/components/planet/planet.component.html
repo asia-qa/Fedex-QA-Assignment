@@ -1,26 +1,26 @@
 <div class="card">
-	<div class="card-body">
-		<h6 class="card-subtitle mb-2 text-muted">
+	<div class="card-body" data-testid="planet-card">
+		<h6 class="card-subtitle mb-2 text-muted" data-testid="name">
 			{{ planet.name }}
 		</h6>
 
-		<div class="row">
-			<div class="col-sm-2">Population:</div>
-			<div class="col-sm-10">
+		<div class="row" data-testid="population">
+			<div class="col-sm-2" data-testid="label">Population:</div>
+			<div class="col-sm-10" data-testid="value">
 				{{ planet.population }}
 			</div>
 		</div>
 
-		<div class="row">
-			<div class="col-sm-2">Climate:</div>
-			<div class="col-sm-10">
+		<div class="row" data-testid="climate">
+			<div class="col-sm-2" data-testid="label">Climate:</div>
+			<div class="col-sm-10" data-testid="value">
 				{{ planet.climate }}
 			</div>
 		</div>
 
-		<div class="row">
-			<div class="col-sm-2">Gravity:</div>
-			<div class="col-sm-10">
+		<div class="row" data-testid="gravity">
+			<div class="col-sm-2" data-testid="label">Gravity:</div>
+			<div class="col-sm-10" data-testid="value">
 				{{ planet.gravity }}
 			</div>
 		</div>

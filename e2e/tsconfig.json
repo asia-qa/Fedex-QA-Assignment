@@ -1,0 +1,20 @@
+{
+	"extends": "../tsconfig.json",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"noEmit": true,
+		"allowSyntheticDefaultImports": true,
+		"resolveJsonModule": true,
+		"types": ["node", "@playwright/test"],
+		"paths": {
+			"@assertions/*": ["assertions/*"],
+			"@constants/*": ["constants/*"],
+			"@fixtures/*": ["fixtures/*"],
+			"@mocks/*": ["mocks/*"],
+			"@pages/*": ["page-objects/*"],
+			"@support/*": ["support/*"],
+		}
+	},
+	"include": ["playwright.config.ts", "**/*.ts"],
+	"exclude": ["node_modules"]
+}
