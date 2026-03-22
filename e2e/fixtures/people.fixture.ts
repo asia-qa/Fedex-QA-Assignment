@@ -11,6 +11,8 @@ import {
   SearchScenario,
   SearchErrorScenario,
 } from "@support/types/search-scenario";
+import { ERROR_MESSAGES } from "@constants/search-page-labels";
+import { CUSTOM_TIMEOUTS } from "@constants/custom-timeouts";
 
 interface PeopleMockScenarioFixtures {
   mockServer: MockServer;
@@ -18,6 +20,8 @@ interface PeopleMockScenarioFixtures {
   invalidCharacterSearch: SearchScenario<Person[]>;
   serverErrorPeopleSearch: SearchErrorScenario;
   validCharacterSearch: SearchScenario<Person[]>;
+  validCharacterSearchDelayed: SearchScenario<Person[]>;
+  validCharacterSearchLowerCase: SearchScenario<Person[]>;
   validCharacterSearchPartialMatch: SearchScenario<Person[]>;
 }
 
@@ -26,6 +30,30 @@ export const peopleTest = base.extend<PeopleMockScenarioFixtures>({
     const luke = VALID_CHARACTERS[0];
     const character = buildPerson(luke);
     const searchTerm = character.name;
+    const searchResponse = buildPeopleSearchSuccessResponse([character]);
+    await mockSearchPeopleResponse(mockServer, searchResponse, searchTerm);
+    await use({ searchTerm, searchedData: [character] });
+  },
+  validCharacterSearchDelayed: async ({ mockServer }, use) => {
+    const luke = VALID_CHARACTERS[0];
+    const delayMs = CUSTOM_TIMEOUTS.delayedResponse;
+    const status = 200;
+    const character = buildPerson(luke);
+    const searchTerm = character.name;
+    const searchResponse = buildPeopleSearchSuccessResponse([character]);
+    await mockSearchPeopleResponse(
+      mockServer,
+      searchResponse,
+      searchTerm,
+      status,
+      delayMs,
+    );
+    await use({ searchTerm, searchedData: [character] });
+  },
+  validCharacterSearchLowerCase: async ({ mockServer }, use) => {
+    const anakin = VALID_CHARACTERS[1];
+    const character = buildPerson(anakin);
+    const searchTerm = character.name.toLowerCase();
     const searchResponse = buildPeopleSearchSuccessResponse([character]);
     await mockSearchPeopleResponse(mockServer, searchResponse, searchTerm);
     await use({ searchTerm, searchedData: [character] });
@@ -53,7 +81,7 @@ export const peopleTest = base.extend<PeopleMockScenarioFixtures>({
   },
   serverErrorPeopleSearch: async ({ mockServer }, use) => {
     const searchTerm = VALID_CHARACTERS[0].name;
-    const searchResponse = buildErrorResponse(500, "");
+    const searchResponse = buildErrorResponse(500, ERROR_MESSAGES.serverError);
     const encodedTerm = encodeURIComponent(searchTerm);
     await mockServer.mockSearchErrorResponse(
       API_URLS.PEOPLE_SEARCH + encodedTerm,

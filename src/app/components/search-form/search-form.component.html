@@ -10,6 +10,7 @@
 							type="radio"
 							id="people"
 							value="people"
+							data-testid="people-radio-button"
 						/>
 						<label class="form-check-label" for="people"> People </label>
 					</div>
@@ -23,6 +24,7 @@
 							type="radio"
 							id="planets"
 							value="planets"
+							data-testid="planets-radio-button"
 						/>
 						<label class="form-check-label" for="planets"> Planets </label>
 					</div>
@@ -35,11 +37,12 @@
 						type="search"
 						class="form-control mb-2"
 						id="query"
+						data-testid="search-input"
 					/>
 				</div>
 
 				<div class="col-auto">
-					<button type="submit" class="btn btn-primary mb-2">
+					<button type="submit" class="btn btn-primary mb-2" data-testid="search-button">
 						Search
 					</button>
 				</div>

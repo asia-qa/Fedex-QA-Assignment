@@ -173,9 +173,86 @@ Design decisions and trade-offs
 Reporting and debugging
 Future improvements
 
-Docker
+#### Docker
 The Dockerfile layout assumes the build is run with the repo root as context, for example:
 
 docker build -f e2e/Dockerfile .
 That is why .dockerignore should be at the repo root, not under e2e/.
- 
+
+build the Playwright image from the repo root
+run the tests inside the container
+mount report folders to the host
+for visual baseline updates, run a separate command that mounts the repo so Linux snapshots are written back to your working tree
+
+Project setup already has 
+- ```e2e/Dockerfile``` that installs dependencies and runs ```npx playwright test```
+- ```playwright.config.ts``` with webServer.command: ```npm run start```
+Thus you don't start angular web app manually. 
+When the container starts - playwright starts Angular web appinside the same container and runs the tests against it.
+Test runner accesses the app at http://localhost:4200 seamlessly.
+
+**Prerequisites:
+Docker Desktop installed and running
+
+**Note: 
+All the commands must be run from the repository root.
+
+1. Build the image:
+````bash
+docker build -f e2e/Dockerfile -t fedex-playwright-e2e:local .
+````
+2. Create folders for artifacts to preserve the reports:
+````bash
+mkdir -p playwright-report test-results
+````
+3. Run the suite locally in docker:
+````bash
+docker run --rm --ipc=host \
+  -e CI=true \
+  -v "$PWD/playwright-report:/app/playwright-report" \
+  -v "$PWD/test-results:/app/test-results" \
+  fedex-playwright-e2e:local
+````
+4. Open the HTML report - ex. on macOS:
+````bash
+open playwright-report/index.html
+````
+
+Additionally you can run a subset of tests by specifying the path to the test folder or file:
+- executing only visual tests:
+````bash
+docker run --rm --ipc=host \
+  -e CI=true \
+  -v "$PWD/playwright-report:/app/playwright-report" \
+  -v "$PWD/test-results:/app/test-results" \
+  fedex-playwright-e2e:local npx playwright test e2e/tests/visual-tests
+````
+- executing only functional tests:
+````bash
+docker run --rm --ipc=host \
+  -e CI=true \
+  -v "$PWD/playwright-report:/app/playwright-report" \
+  -v "$PWD/test-results:/app/test-results" \
+  fedex-playwright-e2e:local npx playwright test e2e/tests/functional
+````
+
+### Visual tests baseline update
+Since the tests can be executed in CI environment you cannot use 
+native macOS or Windows snapshots as the source of truth for CI visual tests runs.
+Thus the baseline for the visual tests should be updated locally 
+and commited to repository with the same base linux OS and browser versions as int the CI environment 
+(see .github/workflows/playwright.yml > build-image > runs-on: ubuntu-latest).
+
+For this purpose there is a separate command which allows to preserve the snapshots 
+and not loose them whit container file system, when container is removed.
+For snapshots updates you should mount the repository into the container - it allows to 
+write the linux snapshots into your local files.
+and use run command with ```--update-snapshots```flag.
+
+Update visual baseline command for macOS / Linux / WSL:
+````bash
+docker run --rm --ipc=host -e CI=true \
+  -v "$PWD:/app" -w /app \
+  fedex-playwright-e2e:local \
+  /bin/bash -lc "npm ci && npx playwright test e2e/tests/visual-tests --update-snapshots"
+````

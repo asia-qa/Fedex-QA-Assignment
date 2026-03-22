@@ -10,14 +10,14 @@ import { SearchResponse } from "@support/types/search-response";
  * @param mockServer
  * @param response
  */
-export const mockGetPlanetResponse = async (
+export const mockSearchPlanetResponse = async (
   mockServer: MockServer,
   response: SearchResponse<Planet>,
-  searchTerm = "",
+  query = "",
   status = 200,
 ) => {
   await mockServer.mockSearchResponse(
-    API_URLS.PLANET_SEARCH + searchTerm,
+    API_URLS.PLANET_SEARCH + encodeURIComponent(query),
     response,
     status,
   );

@@ -5,3 +5,7 @@ export const SEARCH_PAGE_LABELS = {
   peopleLabel: "People",
   planetsLabel: "Planets",
 };
+
+export const ERROR_MESSAGES = {
+  serverError: "Something went wrong.",
+};

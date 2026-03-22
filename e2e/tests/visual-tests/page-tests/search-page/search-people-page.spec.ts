@@ -17,8 +17,7 @@ test.describe("People Search Page Visual Test", () => {
     searchPage,
     validCharacterSearchPartialMatch,
   }) => {
-    const { searchTerm } = validCharacterSearchPartialMatch;
-    const { searchedData } = validCharacterSearchPartialMatch;
+    const { searchTerm, searchedData } = validCharacterSearchPartialMatch;
 
     await test.step("Search for multiple characters", async () => {
       await searchPage.searchForQueryByButton(searchTerm);

@@ -22,8 +22,7 @@ test.describe("Planets Search Page Visual Test", () => {
     searchPage,
     validPlanetSearchPartialMatch,
   }) => {
-    const { searchTerm } = validPlanetSearchPartialMatch;
-    const { searchedData } = validPlanetSearchPartialMatch;
+    const { searchTerm, searchedData } = validPlanetSearchPartialMatch;
 
     await test.step("Search for multiple planets", async () => {
       await searchPage.searchForQueryByButton(searchTerm);

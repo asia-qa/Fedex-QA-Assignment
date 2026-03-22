@@ -1,8 +1,9 @@
+import { ERROR_MESSAGES } from "@constants/search-page-labels";
 import {
   VALID_PLANET_TATOOINE,
   VALID_PLANETS_PARTIAL_MATCH,
 } from "@mocks/data/planets/valid-planet.data";
-import { mockGetPlanetResponse } from "@mocks/handlers/planets.handler";
+import { mockSearchPlanetResponse } from "@mocks/handlers/planets.handler";
 import { MockServer } from "@mocks/mockServer";
 import { test as base } from "@playwright/test";
 import { API_URLS } from "@support/api-urls";
@@ -28,7 +29,7 @@ export const planetTest = base.extend<PlanetMockScenarioFixtures>({
     const planet = buildPlanet(VALID_PLANET_TATOOINE);
     const searchTerm = planet.name;
     const searchResponse = buildPlanetSearchSuccessResponse([planet]);
-    await mockGetPlanetResponse(mockServer, searchResponse, searchTerm);
+    await mockSearchPlanetResponse(mockServer, searchResponse, searchTerm);
     await use({ searchTerm, searchedData: [planet] });
   },
   validPlanetSearchPartialMatch: async ({ mockServer }, use) => {
@@ -37,24 +38,24 @@ export const planetTest = base.extend<PlanetMockScenarioFixtures>({
     );
     const searchTerm = planets[0].name.split(" ")[0]; // Using first name for partial match
     const searchResponse = buildPlanetSearchSuccessResponse(planets);
-    await mockGetPlanetResponse(mockServer, searchResponse, searchTerm);
+    await mockSearchPlanetResponse(mockServer, searchResponse, searchTerm);
     await use({ searchTerm, searchedData: planets });
   },
   invalidPlanetSearch: async ({ mockServer }, use) => {
     const searchTerm = "NonExistingPlanetName";
     const searchResponse = buildPlanetSearchSuccessResponse([]);
-    await mockGetPlanetResponse(mockServer, searchResponse, searchTerm);
+    await mockSearchPlanetResponse(mockServer, searchResponse, searchTerm);
     await use({ searchTerm, searchedData: [] });
   },
   emptyInputSearch: async ({ mockServer }, use) => {
     const searchTerm = "";
     const searchResponse = buildPlanetSearchSuccessResponse([]);
-    await mockGetPlanetResponse(mockServer, searchResponse, searchTerm);
+    await mockSearchPlanetResponse(mockServer, searchResponse, searchTerm);
     await use({ searchTerm, searchedData: [] });
   },
   serverErrorPlanetSearch: async ({ mockServer }, use) => {
     const searchTerm = VALID_PLANET_TATOOINE.name;
-    const searchResponse = buildErrorResponse(500, "");
+    const searchResponse = buildErrorResponse(500, ERROR_MESSAGES.serverError);
     const encodedTerm = encodeURIComponent(searchTerm);
     await mockServer.mockSearchErrorResponse(
       API_URLS.PLANET_SEARCH + encodedTerm,

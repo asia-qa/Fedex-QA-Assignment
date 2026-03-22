@@ -1,8 +1,9 @@
+import { verifyOrderedPlanetsDataDisplayedCorrect } from "@assertions/planets/search-planets.assertion";
 import { SEARCH_CATEGORIES } from "@constants/search-categories";
 import { SEARCH_PAGE_LABELS } from "@constants/search-page-labels";
 import { test, expect } from "@fixtures/fixtures";
 
-test.describe("Search Planets with Error Test", () => {
+test.describe("Search Planets Tests", () => {
   test.beforeEach(async ({ searchPage }) => {
     await test.step("Verify search page opened", async () => {
       await expect(searchPage.header).toHaveText(SEARCH_PAGE_LABELS.header);
@@ -14,21 +15,18 @@ test.describe("Search Planets with Error Test", () => {
     });
   });
 
-  test("Should display loading state when server error returned", async ({
+  test("Should display planet details when search for existing planet with Enter key", async ({
     searchPage,
-    serverErrorPlanetSearch,
+    validPlanetSearch,
   }) => {
-    const { searchTerm } = serverErrorPlanetSearch;
+    const { searchTerm, searchedData } = validPlanetSearch;
 
-    await test.step("Search for an existing planet", async () => {
-      await searchPage.searchForQueryByButton(searchTerm);
+    await test.step("Search for an existing planet with Enter key", async () => {
+      await searchPage.searchForQueryByEnter(searchTerm);
     });
 
-    await test.step("Verify loading state is displayed", async () => {
-      await expect(searchPage.loadingMessage).toBeVisible();
-      await expect(searchPage.loadingMessage).toHaveText(
-        SEARCH_PAGE_LABELS.loadingStateMessage,
-      );
+    await test.step("Verify planet details are displayed", async () => {
+      await verifyOrderedPlanetsDataDisplayedCorrect(searchPage, searchedData);
     });
   });
 });

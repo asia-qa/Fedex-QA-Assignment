@@ -24,7 +24,12 @@ export class AppComponent implements OnInit {
       if (searchType && query) {
         this.isLoading = true;
         this.apiService.search(searchType, query).subscribe((response) => {
-          this.searchResult = response.result;
+          const sorted = [...response.result].sort((a, b) =>
+            a.properties.name.localeCompare(b.properties.name, undefined, {
+              sensitivity: "base",
+            }),
+          );
+          this.searchResult = sorted;
           this.isLoading = false;
         });
       } else {

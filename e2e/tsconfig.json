@@ -13,6 +13,7 @@
 			"@mocks/*": ["mocks/*"],
 			"@pages/*": ["page-objects/*"],
 			"@support/*": ["support/*"],
+			"@utils/*": ["utils/*"]
 		}
 	},
 	"include": ["playwright.config.ts", "**/*.ts"],

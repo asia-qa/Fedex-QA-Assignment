@@ -14,9 +14,11 @@ export class MockServer {
   async mockSearchResponse<T>(
     url: string,
     response: SearchResponse<T>,
-    status?: number,
+    status = 200,
+    delayMs = 0,
   ) {
     await this.page.route(url, async (route) => {
+      await new Promise(resolve => setTimeout(resolve, delayMs));
       await route.fulfill({
         status: status,
         contentType: "application/json",

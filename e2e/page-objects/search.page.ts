@@ -7,6 +7,7 @@ export class SearchPage {
   private readonly _page: Page;
   readonly characterCard: CharacterCardComponent;
   readonly header: Locator;
+  readonly errorMessage: Locator;
   readonly loadingMessage: Locator;
   readonly noResultsMessage: Locator;
   readonly planetCard: PlanetCardComponent;
@@ -14,16 +15,31 @@ export class SearchPage {
 
   constructor(page: Page) {
     this._page = page;
-    this.characterCard = new CharacterCardComponent(this._page);
+    this.characterCard = new CharacterCardComponent(
+      this._page.getByTestId("character-card"),
+    );
     this.header = this._page.locator("h1");
     this.loadingMessage = this._page.getByTestId("loading-message");
+    this.errorMessage = this._page.getByTestId("error-message");
     this.noResultsMessage = this._page.getByTestId("not-found-message");
-    this.planetCard = new PlanetCardComponent(this._page);
+    this.planetCard = new PlanetCardComponent(
+      this._page.getByTestId("planet-card"),
+    );
     this.searchCard = new SearchCardComponent(this._page);
   }
 
   public get page() {
     return this._page;
+  }
+
+  async getCharacterCards() {
+    const containers = await this.characterCard.rootContainer.all();
+    return containers.map((container) => new CharacterCardComponent(container));
+  }
+
+  async getPlanetCards() {
+    const containers = await this.planetCard.rootContainer.all();
+    return containers.map((container) => new PlanetCardComponent(container));
   }
 
   async navigateToSearchResults(
@@ -44,6 +60,6 @@ export class SearchPage {
 
   async searchForQueryByEnter(query: string) {
     await this.searchCard.enterSearchQuery(query);
-    await this.searchCard.searchButton.press("Enter");
+    await this.searchCard.searchInput.press("Enter");
   }
 }

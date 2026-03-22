@@ -15,10 +15,12 @@ export const mockSearchPeopleResponse = async (
   response: SearchResponse<Person>,
   query = "",
   status = 200,
+  delayMs = 0
 ) => {
   await mockServer.mockSearchResponse(
     API_URLS.PEOPLE_SEARCH + encodeURIComponent(query),
     response,
     status,
+    delayMs,
   );
 };
