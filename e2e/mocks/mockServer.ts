@@ -18,11 +18,11 @@ export class MockServer {
     delayMs = 0,
   ) {
     await this.page.route(url, async (route) => {
-      await new Promise(resolve => setTimeout(resolve, delayMs));
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
       await route.fulfill({
         status: status,
-        contentType: "application/json",
         body: JSON.stringify(response),
+        contentType: response.contentType,
       });
     });
   }

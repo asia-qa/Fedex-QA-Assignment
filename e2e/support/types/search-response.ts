@@ -18,4 +18,5 @@ export interface SearchResponse<T> {
   result: SearchResult<T>[];
   apiVersion: string;
   timestamp: string;
+  contentType: "application/json";
 }
