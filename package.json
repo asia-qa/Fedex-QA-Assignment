@@ -9,7 +9,10 @@
     "test": "ng test",
     "lint": "ng lint",
     "lint:e2e": "eslint \"e2e/**/*.ts\" \"playwright.config.ts\"",
-    "lint:e2e:fix": "eslint --fix \"e2e/**/*.ts\" \"playwright.config.ts\""
+    "lint:e2e:fix": "eslint --fix \"e2e/**/*.ts\" \"playwright.config.ts\"",
+    "e2e:all": "npx playwright test",
+    "e2e:functional": "npx playwright test e2e/tests/functional",
+    "e2e:visual": "npx playwright test e2e/tests/visual-tests"
   },
   "private": true,
   "dependencies": {
